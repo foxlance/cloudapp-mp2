@@ -235,7 +235,7 @@ public class TopTitleStatistics extends Configured implements Tool {
             mean = (int) Math.floor(sum/this.N);
 
             for (Pair<Integer, String> item: countToWordMap) {
-                var = var + ((int) Math.sqrt(item.first - mean));
+                var = var + (int) Math.pow(item.first-mean, 2);
             }
 
             var = (int) Math.floor(var/this.N);
