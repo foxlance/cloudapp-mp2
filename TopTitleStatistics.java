@@ -218,7 +218,7 @@ public class TopTitleStatistics extends Configured implements Tool {
                 }
             }
 
-            // Handles logic for 5 statistics requirement
+            // Handles logic for 3 statistics requirement
             for (Pair<Integer, String> item: countToWordMap) {
                 value = item.first;
                 sum   = (int) (sum + value);
@@ -232,7 +232,13 @@ public class TopTitleStatistics extends Configured implements Tool {
                 }
             }
 
-            mean = (int) Math.floor(sum/5);
+            mean = (int) Math.floor(sum/this.N);
+
+            for (Pair<Integer, String> item: countToWordMap) {
+                var = var + ((int) Math.sqrt(item.first - mean));
+            }
+
+            var = (int) Math.floor(var/this.N);
 
             context.write(new Text("Mean"), new IntWritable(mean));
             context.write(new Text("Sum"), new IntWritable(sum));
