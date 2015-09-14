@@ -232,7 +232,7 @@ public class TopTitleStatistics extends Configured implements Tool {
                 }
             }
 
-            mean = (int) Math.floor(mean/5);
+            mean = (int) Math.floor(sum/5);
 
             context.write(new Text("Mean"), new IntWritable(mean));
             context.write(new Text("Sum"), new IntWritable(sum));
