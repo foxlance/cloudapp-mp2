@@ -49,17 +49,19 @@ public class TitleCount extends Configured implements Tool {
     }
 
     public static String readHDFSFile(String path, Configuration conf) throws IOException{
-        Path pt=new Path(path);
-        FileSystem fs = FileSystem.get(pt.toUri(), conf);
+        Path pt                = new Path(path);
+        FileSystem fs          = FileSystem.get(pt.toUri(), conf);
         FSDataInputStream file = fs.open(pt);
-        BufferedReader buffIn=new BufferedReader(new InputStreamReader(file));
+        BufferedReader buffIn  = new BufferedReader(new InputStreamReader(file));
 
         StringBuilder everything = new StringBuilder();
         String line;
+
         while( (line = buffIn.readLine()) != null) {
             everything.append(line);
             everything.append("\n");
         }
+
         return everything.toString();
     }
 
@@ -85,6 +87,16 @@ public class TitleCount extends Configured implements Tool {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             // TODO
+            String line = value.toString();
+            StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters);
+
+            while (tokenizer.hasMoreTokens()) {
+                String nextToken = tokenizer.nextToken();
+                nextToken = nextToken.trim().toLowerCase();
+                if (!this.stopWords.contains(nextToken)) {
+                    context.write(new Text(nextToken), new IntWritable(1));
+                }
+            }
         }
     }
 
