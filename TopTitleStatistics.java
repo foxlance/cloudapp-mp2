@@ -201,7 +201,7 @@ public class TopTitleStatistics extends Configured implements Tool {
 
         @Override
         public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context) throws IOException, InterruptedException {
-            Integer sum=0, mean=0, max=0, min=0, var=0;
+            Integer value=0, sum=0, mean=0, max=0, min=0, var=0;
 
             // TODO
             
@@ -220,10 +220,8 @@ public class TopTitleStatistics extends Configured implements Tool {
 
             // Handles logic for 5 statistics requirement
             for (Pair<Integer, String> item: countToWordMap) {
-                Text word         = new Text(item.second);
-                IntWritable value = new IntWritable(item.first);
-                
-                sum = (int) (sum + value);
+                value = item.first;
+                sum   = (int) (sum + value);
 
                 if (min==0 || min>value) {
                     min = value;
@@ -234,7 +232,7 @@ public class TopTitleStatistics extends Configured implements Tool {
                 }
             }
 
-            mean = (int) Math.ceil(mean/5);
+            mean = (int) Math.floor(mean/5);
 
             context.write(new Text("Mean"), new IntWritable(mean));
             context.write(new Text("Sum"), new IntWritable(sum));
