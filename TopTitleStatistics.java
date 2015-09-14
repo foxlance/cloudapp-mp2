@@ -227,7 +227,7 @@ public class TopTitleStatistics extends Configured implements Tool {
                     min = value;
                 }
 
-                if (max==0 || max>value) {
+                if (max==0 || max<value) {
                     max = value;
                 }
             }
