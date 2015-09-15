@@ -51,14 +51,61 @@ public class TopPopularLinks extends Configured implements Tool {
     @Override
     public int run(String[] args) throws Exception {
         // TODO
+        Configuration conf = this.getConf();
+        FileSystem fs = FileSystem.get(conf);
+        Path tmpPath = new Path("/mp2/tmp");
+        fs.delete(tmpPath, true);
+
+        Job jobA = Job.getInstance(conf, "Title Count");
+        jobA.setOutputKeyClass(IntWritable.class);
+        jobA.setOutputValueClass(IntWritable.class);
+
+        jobA.setMapperClass(LinkCountMap.class);
+        jobA.setReducerClass(LinkCountReduce.class);
+
+        FileInputFormat.setInputPaths(jobA, new Path(args[0]));
+        FileOutputFormat.setOutputPath(jobA, tmpPath);
+
+        jobA.setJarByClass(TopPopularLinks.class);
+        return jobA.waitForCompletion(true) ? 0 : 1;
     }
 
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
-        // TODO
+        //TODO
+        @Override
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String line = value.toString();
+            StringTokenizer tokenizer = new StringTokenizer(line, " \t,;.?!-:@[](){}_*/");
+
+            Integer counter = 0;
+
+            while (tokenizer.hasMoreTokens()) {
+                counter = counter + 1;
+                String nextToken = tokenizer.nextToken();
+
+                if (counter == 1) {
+                    context.write(new IntWritable(Integer.parseInt(nextToken)), new IntWritable(0));
+                } else {
+                    context.write(new IntWritable(Integer.parseInt(nextToken)), new IntWritable(1));
+                }
+            }
+        }
     }
 
     public static class LinkCountReduce extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
         // TODO
+        @Override
+        public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+            //TODO
+            int sum = 0;
+            for (IntWritable val : values) {
+                sum += val.get();
+            }
+
+            if (sum > 0) {
+                context.write(key, new IntWritable(sum));
+            }
+        }
     }
 
     public static class TopLinksMap extends Mapper<Text, Text, NullWritable, IntArrayWritable> {
