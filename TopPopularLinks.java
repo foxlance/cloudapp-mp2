@@ -103,11 +103,10 @@ public class TopPopularLinks extends Configured implements Tool {
                 counter = counter + 1;
                 String nextToken = tokenizer.nextToken();
 
-                if (counter == 1) {
-                    context.write(new IntWritable(Integer.parseInt(nextToken)), new IntWritable(0));
-                } else {
-                    context.write(new IntWritable(Integer.parseInt(nextToken)), new IntWritable(1));
-                }
+                // First item is the actual page. No count should be given
+                IntWritable count = (counter == 1) ? new IntWritable(0) : new IntWritable(1);
+
+                context.write(new IntWritable(Integer.parseInt(nextToken)), count);
             }
         }
     }
