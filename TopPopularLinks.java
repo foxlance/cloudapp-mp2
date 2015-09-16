@@ -73,8 +73,8 @@ public class TopPopularLinks extends Configured implements Tool {
         jobB.setOutputKeyClass(NullWritable.class);
         jobB.setOutputValueClass(IntArrayWritable.class);
 
-        // jobB.setMapOutputKeyClass(NullWritable.class);
-        // jobB.setMapOutputValueClass(TextArrayWritable.class);
+        jobB.setMapOutputKeyClass(NullWritable.class);
+        jobB.setMapOutputValueClass(IntArrayWritable.class);
 
         jobB.setMapperClass(TopLinksMap.class);
         jobB.setReducerClass(TopLinksReduce.class);
@@ -165,12 +165,33 @@ public class TopPopularLinks extends Configured implements Tool {
     public static class TopLinksReduce extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
         Integer N;
 
+        private TreeSet<Pair<IntWritable, IntWritable>> countToWordMap = new TreeSet<Pair<IntWritable, IntWritable>>();
+
         @Override
         protected void setup(Context context) throws IOException,InterruptedException {
             Configuration conf = context.getConfiguration();
             this.N = conf.getInt("N", 10);
         }
         // TODO
+
+        public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
+
+            for (IntArrayWritable val: values) {
+                IntWritable[] pair = (IntWritable[]) val.toArray();
+                IntWritable link   = pair[0];
+                IntWritable count  = pair[1];
+
+                countToWordMap.add(new Pair<IntWritable, IntWritable>(count, link));
+
+                if (countToWordMap.size() > this.N) {
+                    countToWordMap.remove(countToWordMap.first());
+                }
+            }
+
+            for (Pair<IntWritable, IntWritable> item: countToWordMap) {
+                context.write(item.second, item.first);
+            }
+        }
     }
 }
 
