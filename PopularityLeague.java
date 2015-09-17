@@ -148,12 +148,6 @@ public class PopularityLeague extends Configured implements Tool {
         }
     }
 
-
-
-
-
-
-
     public static class TopLinksMap extends Mapper<Text, Text, NullWritable, IntArrayWritable> {
         Integer N;
 
@@ -186,8 +180,6 @@ public class PopularityLeague extends Configured implements Tool {
         }
     }
 
-
-
     public static class TopLinksReduce extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
         Integer N;
 
@@ -213,7 +205,7 @@ public class PopularityLeague extends Configured implements Tool {
                 }
             }
 
-            // initial loop, get 1 item and match popularity against the rest of the group
+            // Initial loop, get 1 item and match popularity against the rest of the group
             for (Pair<IntWritable, IntWritable> item: countToWordMap) {
                 Integer count = 0;
                 
@@ -221,6 +213,7 @@ public class PopularityLeague extends Configured implements Tool {
                     if (item.second == inner.second) {
                         continue;
                     }
+                    // Count polularity of current link if other pages has lower incomming link count
                     if (item.first.compareTo(inner.first) > 0) {
                         count = count + 1;
                     }
@@ -228,11 +221,6 @@ public class PopularityLeague extends Configured implements Tool {
 
                 context.write(item.second, new IntWritable(count));
             }
-
-
-
-
-
         }
     }
 }
